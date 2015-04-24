@@ -7,7 +7,7 @@ import numpy as np
 def printFileInfo(waveFileName: str):
     (rate, data) = wavfile.read(waveFileName)
     print(waveFileName)
-    print("Rate: %d, length:%d" % (rate, len(data)))
+    print("Rate: %d samples/s, time: %fs" % (rate, len(data)/rate))
 
 
 def plotWave(waveFileName: str):
@@ -15,8 +15,8 @@ def plotWave(waveFileName: str):
     xaxis=np.linspace(0, len(data)/rate, num=len(data))
     plt.figure(1)
     plt.title(waveFileName)
-    plt.plot(xaxis,data)
+    plt.plot(xaxis, data)
     plt.show()
 
 if __name__ == "__main__":
-    plotWave("../data/asa.wav")
+    printFileInfo("../data/asa.wav")
