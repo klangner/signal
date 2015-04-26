@@ -1,4 +1,4 @@
-import math
+import cmath
 from scipy.io import wavfile
 import matplotlib.pyplot as plt
 import numpy as np
@@ -31,11 +31,11 @@ def plot_wave(waveFileName: str):
 
 def plot_sinusoid():
     N = 36
-    omega = math.pi/6
-    phi = math.pi/4
-    x = [math.cos(n*omega+phi) for n in range(0, N)]
+    omega = cmath.pi/6
+    phi = cmath.pi/4
+    x = [cmath.exp(1j*(n*omega+phi)).real for n in range(0, N)]
     plt.figure(1)
-    plt.title("cos(n*pi/6 + pi/4)")
+    plt.title("Re cos(n*pi/6 + pi/4)")
     plt.stem(x)
     plt.show()
 
