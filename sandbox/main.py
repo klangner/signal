@@ -32,11 +32,15 @@ def plot_wave(waveFileName: str):
 def plot_sinusoid():
     N = 36
     omega = cmath.pi/6
-    phi = cmath.pi/4
-    x = [cmath.exp(1j*(n*omega+phi)).real for n in range(0, N)]
+    phi = 0 # cmath.pi/4
+    signal = [cmath.exp(1j*(n*omega+phi)) for n in range(0, N)]
     plt.figure(1)
-    plt.title("Re cos(n*pi/6 + pi/4)")
-    plt.stem(x)
+    plt.subplot(211)
+    plt.title("Real part")
+    plt.stem([x.real for x in signal])
+    plt.subplot(212)
+    plt.title("Imaginary")
+    plt.stem([x.imag for x in signal], 'r')
     plt.show()
 
 
