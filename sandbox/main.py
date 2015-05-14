@@ -2,8 +2,11 @@ import cmath
 from scipy.io import wavfile
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy.signal import kaiser, decimate
+from numpy.fft import rfft
 import math
 from collections import namedtuple
+
 
 Wave = namedtuple("Wave", ['rate', 'data'])
 
@@ -55,6 +58,14 @@ def plot_freq(waveFileName: str):
     plt.show()
 
 
+def plot_fft(fft):
+    plt.figure(1)
+    xs = np.absolute(fft[:100])
+    plt.plot(xs)
+    plt.show()
+
+
+
 def find_peaks(waveFileName: str):
     print(waveFileName)
     (rate, data) = wavfile.read(waveFileName)
@@ -88,6 +99,45 @@ def print_filter_bank(waveFileName: str, bins=10):
     print(fb)
 
 
+def freq_from_hps(waveFileName: str):
+    """ Estimate frequency using harmonic product spectrum
+    """
+    (rate, signal) = wavfile.read(waveFileName)
+    N = len(signal)
+    # Compute Fourier transform of windowed signal
+    windowed = signal * kaiser(N, 100)
+    # Get spectrum
+    X = np.log(abs(rfft(windowed)))
+    # Downsample sum logs of spectra instead of multiplying
+    hps = np.copy(X)
+    for h in range(2, 5):
+        dec = decimate(X, h)
+        hps[:len(dec)] *= dec
+    # Find the peak and interpolate to get a more accurate peak
+    i_peak = np.argmax(hps[:len(dec)])
+    i_interp = parabolic(hps, i_peak)[0]
+    # Convert to equivalent frequency
+    print("F0 = %d" %((rate * i_interp)/N))
+
+
+def parabolic(f, x):
+    """Quadratic interpolation for estimating the true position of an
+    inter-sample maximum when nearby samples are known.
+    f is a vector and x is an index for that vector.
+    Returns (vx, vy), the coordinates of the vertex of a parabola that goes
+    through point x and its two neighbors.
+    Example:
+    Defining a vector f with a local maximum at index 3 (= 6), find local
+    maximum if points 2, 3, and 4 actually defined a parabola.
+    In [3]: f = [2, 3, 1, 6, 4, 2, 3, 1]
+    In [4]: parabolic(f, argmax(f))
+    Out[4]: (3.2142857142857144, 6.1607142857142856)
+    """
+    xv = 1/2. * (f[x-1] - f[x+1]) / (f[x-1] - 2 * f[x] + f[x+1]) + x
+    yv = f[x] - 1/4. * (f[x-1] - f[x+1]) * (xv - x)
+    return (xv, yv)
+
+
 def print_note_filter_bank(waveFileName: str):
     (rate, data) = wavfile.read(waveFileName)
     # Take samples from the beginning of the signal
@@ -119,9 +169,10 @@ def filter_bank(rate, data, bins = 10, start_freq=300, end_freq=5000):
 
 
 if __name__ == "__main__":
+    freq_from_hps("../data/a4.wav")
     # plot_wave("../data/100Hz.wav")
     # plot_freq("../data/100Hz.wav")
-    find_peaks("../data/asa.wav")
+    # find_peaks("../data/100Hz.wav")
     # plot_wave("../data/a4.wav")
     # print_filter_bank("../data/e6.wav")
     # print_note_filter_bank("../data/e6.wav")
