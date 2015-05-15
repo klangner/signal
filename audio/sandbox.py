@@ -20,8 +20,7 @@ def print_note_filter_bank(waveFileName: str):
     fb = filter_bank(rate, fft, 12, 220, 440)
     # Normalize
     mx = np.max(fb)
-    fb = fb / mx
-    print(fb)
+    print(fb / mx)
 
 
 def filter_bank(rate, data, bins = 10, start_freq=300, end_freq=5000):
@@ -43,5 +42,5 @@ def filter_bank(rate, data, bins = 10, start_freq=300, end_freq=5000):
 
 
 if __name__ == "__main__":
-    print_note_filter_bank("../data/e6.wav")
+    print_note_filter_bank("../data/e5.wav")
 

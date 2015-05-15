@@ -1,7 +1,8 @@
 import numpy as np
 from scipy.signal import decimate
 
-from src.utils import read_fft_data, parabolic
+from audio.utils import read_fft_data, parabolic
+from audio.note import freq_to_note
 
 
 def find_peaks(wave_file_name: str):
@@ -48,7 +49,7 @@ def hps_pitch_detector(spectrum):
 
 def freq_from_hps_ex(wave_file_name: str):
     print(wave_file_name)
-    (rate, xs) = read_fft_data(wave_file_name)[:500]
+    (rate, xs) = read_fft_data(wave_file_name)
     N = 2*len(xs)
     hps_peak = hps_pitch_detector(xs)
     spectra_peaks = find_spectra_peaks(xs)
@@ -58,12 +59,23 @@ def freq_from_hps_ex(wave_file_name: str):
         if abs(p-hps_peak) < distance:
             distance = abs(p-hps_peak)
             peak = p
-    print("HPS with correction F0 = %f" % ((rate * peak)/N))
+    freq = (rate * peak)/N
+    print("HPS with correction F0 = %f" % freq)
+    return freq
+
+
+def pitch_note(file_name: str):
+    find_peaks(file_name)
+    f0 = freq_from_hps_ex(file_name)
+    note = freq_to_note(f0)
+    print("Found note = %s" % note)
 
 
 if __name__ == "__main__":
-    find_peaks("data/a4.wav")
+    # pitch_note("../data/a4.wav")
+    # pitch_note("../data/e3.wav")
+    pitch_note("../data/d4.wav")
     # freq_from_hps("data/440Hz.wav")
     # freq_from_hps_ex("data/440Hz.wav")
-    freq_from_hps_ex("data/a4.wav")
+    # freq_from_hps_ex("data/a4.wav")
 
